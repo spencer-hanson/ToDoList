@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ToDo List Backbone Challenge</title>
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.1.1/css/bootstrap.min.css">
+</head>
+<body>
+
+
+  <div class="container">
+    <div align="center"><h1>ToDo List!</h1></div>
+    <hr />
+    <div class="page"></div>
+  </div>
+
+
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js" type="text/javascript"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+
+  <script type="text/template" id="todo-list-template">
+    <table class="table striped">
+     <thead>
+        <tr>
+	 <th><b>Title</b></th><th>Description</th><th>Edit</th><th>Check off!</th>
+	</tr>
+     </thead>
+     <tbody>
+        <% _.each(todos, function(todoItem) { %>
+          <tr>
+            <td><%= htmlEncode(todoItem.get('title')) %></td>
+            <td><i><%= htmlEncode(todoItem.get('desc')) %></i></td>
+            <td><a class="btn" href="#/edit/<%= todoItem.id %>">Edit</a></td>
+	    <td><input type="checkbox" name="id" class="removeCheckbox" value="<%= todoItem.id %>"/></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <div align="right"> <a href="#/new" class="btn btn-primary">New ToDo!</a> </div>
+  </script>
+
+  <script type="text/template" id="edit-todo-template">
+    <form class="edit-todo-form">
+      <legend><%= todoItem ? 'Edit' : 'New' %> ToDo Item</legend>
+        <label>Title</label>
+        <input name="title" type="text" value="<%= todoItem ? todoItem.get('title') : '' %>">
+        <label>Description</label>
+        <input name="desc" type="text" value="<%= todoItem ? todoItem.get('desc') : '' %>">
+        <hr />
+       <button type="submit" class="btn"><%= todoItem ? 'Update' : 'Create' %></button>
+       <% if(todoItem) { %>
+        <input type="hidden" name="id" value="<%= todoItem.id %>" />
+       <button data-todo-id="<%= todoItem.id %>" class="btn btn-danger delete">Delete</button>
+       <% }; %>
+    </form>
+  </script>
+
+  <script>
+//Helper functions   
+    $.fn.serializeObject = function() {
+      var o = {};
+      var a = this.serializeArray();
+      $.each(a, function() {
+          if (o[this.name] !== undefined) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+      return o;
+    };
+
+
+    function htmlEncode(value){
+      return $('<div/>').text(value).html();
+    }
+
+
+    $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+		options.url = 'http://localhost:3000' + options.url;      
+    });
+
+    var ToDos = Backbone.Collection.extend({
+      url: '/todos'
+    });
+
+    var ToDo = Backbone.Model.extend({
+      urlRoot: '/todos'
+    });
+
+    var ToDoListView = Backbone.View.extend({
+      el: '.page',
+      events: {
+        'click .removeCheckbox' : 'deleteToDo'
+      },
+      render: function () {
+        var self = this;
+        var todos = new ToDos();
+        todos.fetch({
+          success: function (todos) {
+            var template = _.template($('#todo-list-template').html(), {todos: todos.models});
+            self.$el.html(template);
+          }
+        });
+      },
+      deleteToDo: function (ev) {
+	var todoDetails = $(ev.currentTarget).serializeObject();
+        var todoItem = new ToDo({id: todoDetails.id});
+        todoItem.destroy({
+          success: function () {
+	    location.reload();
+            router.navigate('', {trigger:true});
+          }
+        });
+        return false;
+      }
+    });
+
+    var EditTodoView = Backbone.View.extend({
+      el: '.page',
+      events: {
+        'submit .edit-todo-form': 'saveToDo',
+        'click .delete': 'deleteToDo'
+      },
+      saveToDo: function (ev) {
+        var todoDetails = $(ev.currentTarget).serializeObject();
+        var todoItem = new ToDo();
+
+	if(todoDetails.desc && todoDetails.title) {
+		todoItem.save(todoDetails, {
+	          success: function () {
+        	    router.navigate('', {trigger:true});
+	          }
+        	});
+	} else if(!todoDetails.title){
+		alert("You can't leave the title empty!");	
+
+	} else {
+		alert("You can't leave the description empty!");	
+	}
+        return false;
+      },
+      deleteToDo: function (ev) {
+        this.todoItem.destroy({
+          success: function () {
+            router.navigate('', {trigger:true});
+          }
+        });
+        return false;
+      },
+      render: function (options) {
+        var self = this;
+        if(options.id) {
+          self.todoItem = new ToDo({id: options.id});
+          self.todoItem.fetch({
+            success: function (todoItem) {    
+              var template = _.template($('#edit-todo-template').html(), {todoItem: todoItem});
+              self.$el.html(template);
+            }
+          });
+        } else {
+          var template = _.template($('#edit-todo-template').html(), {todoItem: null});
+          self.$el.html(template);
+        }
+      }
+    });
+
+
+    var Router = Backbone.Router.extend({
+        routes: {
+          "": "home", 
+          "edit/:id": "edit",
+          "new": "edit",
+        }
+    });
+
+
+    var todoEditView = new EditTodoView();
+
+    var todoListView = new ToDoListView();
+
+    var router = new Router;
+    router.on('route:home', function() {
+      todoListView.render();
+    })
+    router.on('route:edit', function(id) {
+      todoEditView.render({id: id});
+    })
+
+    Backbone.history.start();
+
+  </script>
+
+
+</body>
+</html> 
+

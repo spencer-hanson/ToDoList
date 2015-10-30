@@ -1,0 +1,29 @@
+{
+  "name": "ToDoList",
+  "version": "0.0.1",
+  "description": "A Basic ToDo List using Backbone!",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "~1.14.1",
+    "connect": "~3.4.0",
+    "nohm": "~0.9.7",
+    "express": "~4.13.3",
+    "redis": "~2.2.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spencer-hanson/ToDoList"
+  },
+  "keywords": [
+    "ToDo"
+  ],
+  "author": "Spencer Hanson",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/spencer-hanson/ToDoList/issues"
+  }
+}
