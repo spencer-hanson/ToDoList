@@ -13,7 +13,7 @@ redis.on("connect", function() {
 nohm.setClient(redis);
 });
 
-var port = 3000;
+var port = process.env.PORT || 3000;
 
 var ToDo = nohm.model('ToDo', {
   properties: {
@@ -97,4 +97,4 @@ app.delete('/todos/:id', deleteToDo);
 app.post('/todos', createToDo);
 app.put('/todos/:id', updateToDo);
 
-app.listen(3000);
+app.listen(port);
