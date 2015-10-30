@@ -48,6 +48,7 @@
         <label>Description</label>
         <input name="desc" type="text" value="<%= todoItem ? todoItem.get('desc') : '' %>">
         <hr />
+	<input type="button" class="btn btn-primary back" value="Back"/>
        <button type="submit" class="btn"><%= todoItem ? 'Update' : 'Create' %></button>
        <% if(todoItem) { %>
         <input type="hidden" name="id" value="<%= todoItem.id %>" />
@@ -124,7 +125,11 @@
       el: '.page',
       events: {
         'submit .edit-todo-form': 'saveToDo',
-        'click .delete': 'deleteToDo'
+        'click .delete': 'deleteToDo',
+	'click .back': 'goBack'
+      },
+      goBack: function(ev) {
+      	window.history.back();
       },
       saveToDo: function (ev) {
         var todoDetails = $(ev.currentTarget).serializeObject();
