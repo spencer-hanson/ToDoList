@@ -6,7 +6,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 var nohm = require('nohm').Nohm;
-var redis = require("redis").createClient();
+
+if(process.env.REDISTOGO_URL) {
+	var rtg = require("url").parse(process.env.REDISTOGO_URL);
+	var redis = require("redis").createClient(rtg.port, rtg.hostname);
+} else {
+	var redis = require("redis").createClient();
+}
 
 
 redis.on("connect", function() {
