@@ -12,16 +12,16 @@
  ```
 2. In a seperate terminal, make sure the redis-server is running with
  ```shell
- redis-server
+redis-server
  ```
 3. Change the line in todo.js from my heroku server to your server
  ```javascript
- $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
-                 options.url = 'http://your-url-here.com' + options.url;
-     });
+$.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+                options.url = 'http://your-url-here.com' + options.url;
+    });
  ```
 4. Download node.js and run
  ```shell
- node index.js
+node index.js
  ```
 5. Done!
