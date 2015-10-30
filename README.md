@@ -1,13 +1,31 @@
 #ToDoList
+<img src="media/ToDo.gif" alt="demo" width="600" />
+###How to install on a webserver!
+1. Copy the contents of public_html to your website directory
+2. You're done!
 
-###How to use
-1. Make sure you have redis-server installed 
+
+
+
+
+
+###Setting up a custom server
+1. Get redis-server installed with
 ```shell
 sudo apt-get install redis-server
 ```
-2. Start the local server with start_server.sh
+2. In a seperate terminal, make sure the redis-server is running with
 ```shell
-./start_server.sh
+redis-server
 ```
-3.Move the public_html folder to your public html folder on your webserver
-4. Open the page in your browser!
+3. Change the line in todo.js from my heroku server to your server
+```javascript
+$.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+                options.url = 'http://your-url-here.com' + options.url;
+    });
+```
+4. Download node.js and run
+```shell
+node index.js
+```
+5. Done!
